@@ -31,4 +31,4 @@ Run Docker Compose from DEPLOYMENT.md. The application uses cached mainnet evide
 
 65–75s: “Revisions keep history.” Show the second record's parent and the code-hash identity. “These commitments prove integrity and timing; the underlying thesis remains open to challenge.”
 
-Record actual screen interactions. A video file has not been fabricated or claimed as recorded. The human decides whether to record/post it and must resolve the two-entry eligibility cap before a new submission.
+An actual continuous local walkthrough is recorded at [evidence/demo/research-workflow.webm](evidence/demo/research-workflow.webm). It shows real captured mainnet data, scenario edits, report export, and a live read-only matching check against the deployed testnet registry. It includes no AI inference or wallet-signing claim. The human decides whether to post it and must resolve the two-entry eligibility cap before a new submission.

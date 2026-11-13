@@ -22,8 +22,12 @@ Recorded on 13 November 2026. Source identity is the Git commit containing this 
 | Tampered numeric result | Explicit mismatching result, exit 1 |
 | Unreachable registry RPC | Explicit unavailable result, exit 1 |
 | Desktop/mobile screenshots | Actual application with real mainnet data, no AI requests |
+| Fresh local clone | Frozen install, all three application builds, 22 unit tests, and bundle verifier passed at source 402b884 |
+| Recorded walkthrough | Actual continuous UI recording, exported scenario bundle, and live testnet hash verification |
 
 Initial failures were corrected before these results: Windows Application Control prevented Rust build-script execution, so contract tooling uses WSL; the sandbox WASM path was made absolute; mobile browser configuration was corrected; tests use a dedicated port to avoid a running Docker release; exact DOM labels and URL-to-filesystem conversion were corrected.
+
+GitHub's Linux runner subsequently found 16px of mobile header overflow with its platform fonts. The compact mobile header now avoids competing status/brand widths; the data-quality status remains in the context strip.
 
 ## Acceptance matrix
 

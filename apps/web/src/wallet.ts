@@ -26,6 +26,7 @@ export async function viewRegistry(contractId: string, methodName: string, args:
   const account = await accountResponse.json() as { result?: { code_hash?: string } };
   if (account.result?.code_hash !== deployment.code_hash) throw new Error("Registry code hash unavailable or mismatching");
   const response = await fetch(rpc, {
+    signal: AbortSignal.timeout(20000),
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({

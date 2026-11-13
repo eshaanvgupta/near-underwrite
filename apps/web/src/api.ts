@@ -10,6 +10,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
+    signal: init.signal ?? AbortSignal.timeout(20000),
     headers: {
       "content-type": "application/json",
       "x-near-underwrite": "1",
