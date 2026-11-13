@@ -1,8 +1,10 @@
 import type { AIRoleResult, Snapshot } from "@near-underwrite/shared";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
+const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:8787" : "");
+export const hasBackend = API_URL.length > 0;
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  if (!hasBackend) throw new Error("The shared backend is not connected on this Pages preview. Use the Docker release or connect a hosted API.");
   let capability = localStorage.getItem("near-underwrite.session");
   if (!capability) {
     capability = Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) => byte.toString(16).padStart(2, "0")).join("");

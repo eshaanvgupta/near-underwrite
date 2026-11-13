@@ -6,6 +6,10 @@ NEAR UNDERWRITE is a research application with a React interface, Node API, Post
 
 Open a claim, inspect its evidence and counterargument, change its assumptions, export the report, and verify its content against an on-chain commitment.
 
+**Public research preview:** https://eshaanvgupta.github.io/near-underwrite/
+
+GitHub Pages serves the React application, saved real mainnet evidence, scenario tools, exports, and live testnet wallet/verification features. Shared PostgreSQL workspaces and proxied AI requests require the separate API. The page labels this mode explicitly. Each deployment attempts a bounded public-source refresh and retains the saved snapshot with its original timestamps if sources are unavailable.
+
 ## Run it
 
 Requirements: Docker Compose; or Node 24.16.0, pnpm 11.25.0, and PostgreSQL. Rust 1.97.0 is used for contract checks. Windows contract commands use Ubuntu-24.04 in WSL.

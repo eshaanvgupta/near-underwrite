@@ -1,0 +1,40 @@
+import { chromium, expect } from "@playwright/test";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+const url = process.env.APP_URL ?? "http://127.0.0.1:5185/near-underwrite/";
+const deployment = JSON.parse(await readFile(new URL("../evidence/deployment.json", import.meta.url), "utf8"));
+const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? "msedge" });
+try {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const localApiRequests = [];
+  page.on("request", request => { if (/https?:\/\/(localhost|127\.0\.0\.1):8787/.test(request.url())) localApiRequests.push(request.url()); });
+  await page.goto(url);
+  await expect(page.getByRole("heading", { name: "Usage is visible. Value capture still has to be proved." })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Pages preview mode" })).toBeVisible();
+  await expect(page.getByText("Bundled verified snapshot")).toBeVisible();
+  await page.getByRole("button", { name: "near.mainnet.finalized.total_supply", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Measurement detail" })).toContainText("yoctoNEAR");
+  await page.getByRole("button", { name: "Scenario workbench" }).click();
+  await expect(page.getByRole("button", { name: "Save workspace", exact: true })).toBeDisabled();
+  await page.getByLabel("Annual actual protocol burn").fill("30000000");
+  await expect(page.getByText("-10000000 NEAR")).toBeVisible();
+  await page.getByRole("button", { name: "Report & export" }).click();
+  await page.getByRole("button", { name: "Freeze current report" }).click();
+  const exported = page.waitForEvent("download", { timeout: 10000 });
+  await page.getByRole("button", { name: "Export reproducibility JSON" }).click();
+  const download = await exported;
+  if (!download.suggestedFilename().endsWith(".json")) throw new Error("Report did not export");
+  await page.getByRole("button", { name: "Publication registry" }).click();
+  await expect(page.getByRole("button", { name: "Connect testnet wallet" })).toBeVisible();
+  await page.getByLabel("Downloaded research bundle").setInputFiles(fileURLToPath(new URL("../evidence/report.json", import.meta.url)));
+  await page.getByLabel("Publication ID", { exact: true }).fill(deployment.publications[0].publication_id);
+  await page.getByRole("button", { name: "Recompute & compare final state" }).click();
+  await expect(page.getByText("Matching: downloaded bundle reproduces all three on-chain digests")).toBeVisible({ timeout: 45000 });
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.getByRole("button", { name: "Evidence board", exact: true }).click();
+  if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw new Error("Mobile overflow");
+  if (localApiRequests.length) throw new Error("Pages preview contacted a visitor's localhost");
+  console.log(JSON.stringify({ status: "passed", url, evidence: "real bundled mainnet", scenario_edit: "passed", json_export: "passed", registry: "matching live testnet", mobile_360px: "passed", localhost_api_requests: localApiRequests.length }));
+} finally {
+  await browser.close();
+}

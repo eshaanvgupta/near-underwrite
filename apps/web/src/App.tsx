@@ -9,7 +9,7 @@ import {
   type ResearchBundle,
   type Snapshot,
 } from "@near-underwrite/shared";
-import { discoverModels, latestSnapshot, listSnapshots, runRole, savePublication, saveWorkspace, getWorkspace } from "./api.js";
+import { discoverModels, latestSnapshot, listSnapshots, runRole, savePublication, saveWorkspace, getWorkspace, hasBackend } from "./api.js";
 import { assumptionsFor, cases, download, evidenceCsv, falsificationRows, makeBundle, reportHtml } from "./research.js";
 import { forgetKey, hasRememberedKey, rememberKey, unlockKey } from "./vault.js";
 import { setupTestnetWallet, viewRegistry, type WalletConnection } from "./wallet.js";
@@ -333,11 +333,11 @@ export function App() {
       }
       setRegistryRecord(record);
       setPublicationStatus("Confirmed in final testnet registry state");
-      if (transactionHash) {
+      if (transactionHash && hasBackend) {
         await savePublication({
           ...record,
           transaction_hash: transactionHash,
-        });
+        }).catch(() => setPublicationStatus("Confirmed in final testnet registry state; shared archive is currently unavailable"));
       }
     } catch (cause) {
       setPublicationStatus(`Rejected or failed: ${cause instanceof Error ? cause.message : String(cause)}`);
@@ -392,6 +392,11 @@ export function App() {
         <div><span>Data quality</span><b>{snapshot.completeness.problems.length} flagged issue{snapshot.completeness.problems.length === 1 ? "" : "s"}</b></div>
       </section>
 
+      {!hasBackend && <aside className="setup-message" aria-label="Pages preview mode">
+        <b>Public research preview · saved mainnet evidence + live testnet registry</b>
+        <span>Explore claims, edit scenarios, compare locally, export reports, and verify or publish testnet commitments. Shared workspace saves and AI requests become available when a hosted API is connected.</span>
+      </aside>}
+
       {screen === "evidence" && <section aria-labelledby="evidence-title">
         <div className="page-heading"><div><p className="eyebrow">Live evidence board</p><h1 id="evidence-title">Usage is visible. Value capture still has to be proved.</h1><p>Every claim below opens into its measurements, assumptions, formula, uncertainty, counterargument, and falsification condition.</p></div><button onClick={() => setScreen("workbench")}>Stress the assumptions →</button></div>
         <div className="metric-grid">
@@ -436,7 +441,7 @@ export function App() {
       </section>}
 
       {screen === "workbench" && <section aria-labelledby="workbench-title">
-        <div className="page-heading"><div><p className="eyebrow">Scenario workbench</p><h1 id="workbench-title">Change one bridge. See what survives.</h1><p>The engine uses decimal arithmetic and integer atomic supply. These are explicit scenarios, not forecasts.</p></div><button onClick={() => void persistWorkspace()}>Save workspace</button></div>
+        <div className="page-heading"><div><p className="eyebrow">Scenario workbench</p><h1 id="workbench-title">Change one bridge. See what survives.</h1><p>The engine uses decimal arithmetic and integer atomic supply. These are explicit scenarios, not forecasts.</p></div><button disabled={!hasBackend} title={hasBackend ? "Save to the shared database" : "A hosted API is required for shared saves; Scenario A can still be saved locally"} onClick={() => void persistWorkspace()}>Save workspace</button></div>
         <div className="case-tabs">{(["bear", "base", "bull"] as const).map((name) => <button key={name} className={caseName === name ? "active" : ""} onClick={() => selectCase(name)}>{name} case</button>)}</div>
         <div className="workbench-grid">
           <form className="assumption-panel" onSubmit={(event) => event.preventDefault()}>
@@ -479,14 +484,14 @@ export function App() {
         <div className="page-heading"><div><p className="eyebrow">Adversarial AI room</p><h1 id="ai-title">Same evidence. Three bounded requests.</h1><p>AI explains and challenges; the deterministic engine owns arithmetic. No key means no generated analysis.</p></div><button onClick={() => setScreen("settings")}>{apiKey ? "AI configured" : "Configure your key"}</button></div>
         <button onClick={() => { analysisRef.current = null; setAiResults([]); setRoleState({ bull: "Not run", bear: "Not run", synthesis: "Not run" }); }}>Start new analysis with current evidence</button>
         {aiResults.length > 1 && <div className="setup-message"><b>Disagreements</b>{aiResults.flatMap(result => result.disagreements.map((item, index) => <span key={result.role + index}>{result.role}: {item}</span>))}</div>}
-        {!apiKey && <div className="setup-message"><b>No AI credential is in browser memory.</b><span>Public research, scenarios, comparisons, and exports remain fully available. Add your own provider key in Settings to enable these requests.</span></div>}
+        {!apiKey && <div className="setup-message"><b>No AI credential is in browser memory.</b><span>{hasBackend ? "Public research, scenarios, comparisons, and exports remain fully available. Add your own provider key in Settings to enable these requests." : "Research, scenarios, comparisons, and exports are available here. AI generation requires a connected hosted API; this Pages preview does not send inference requests."}</span></div>}
         <div className="role-grid">{(["bull", "bear", "synthesis"] as const).map((role) => {
           const result = aiResults.find((item) => item.role === role);
           return <article key={role}>
             <p className="eyebrow">{role} analyst</p>
             <h2>{role === "bull" ? "What could strengthen?" : role === "bear" ? "What breaks first?" : "What survives both?"}</h2>
             <p className="role-status">{roleState[role]}</p>
-            <button disabled={!apiKey || !model || roleState[role].includes("progress")} onClick={() => void runAnalysis(role)}>Run one visible request</button>
+            <button disabled={!hasBackend || !apiKey || !model || roleState[role].includes("progress")} onClick={() => void runAnalysis(role)}>Run one visible request</button>
             {result && <div className="ai-output">{result.claims.map((claim) => <details key={claim.id} open><summary>{claim.text}</summary><p><b>References:</b> {claim.evidence_ids.join(", ")}</p><p><b>Counterargument:</b> {claim.counterargument}</p><p><b>Confidence explanation:</b> {claim.confidence_explanation}</p>{claim.numerical_claims.map((number) => <p key={number.text} className="number-check">Numeric claim: {number.text}<br /><small>{number.evidence_ids.join(", ")}</small></p>)}</details>)}<small>Provider-reported usage: {result.reported_usage.total_tokens ?? "unreported"} · Estimated upper input bound: {result.estimated_usage.input_tokens_upper_bound}</small></div>}
           </article>;
         })}</div>
@@ -582,7 +587,7 @@ export function App() {
             <label>Base URL<input value={endpoint} onChange={(event) => setEndpoint(event.target.value)} readOnly={provider === "near-ai"} /></label>
             <label>API key<span className="password-row"><input aria-label="API key" type={showKey ? "text" : "password"} value={apiKey} onChange={(event) => setApiKey(event.target.value)} autoComplete="off" /><button type="button" onClick={() => setShowKey((value) => !value)}>{showKey ? "Hide" : "Reveal"}</button></span></label>
             <label>Model<input value={model} onChange={(event) => setModel(event.target.value)} placeholder="Discover or enter an available model" /></label>
-            <div className="button-row"><button type="button" disabled={!apiKey || !endpoint} onClick={async () => {
+            <div className="button-row"><button type="button" disabled={!hasBackend || !apiKey || !endpoint} onClick={async () => {
               setModelsStatus("Testing connection and discovering models…");
               try {
                 const result = await discoverModels({ provider, endpoint, api_key: apiKey });

@@ -65,3 +65,7 @@ GitHub's Linux runner subsequently found 16px of mobile header overflow with its
 - evidence/screenshots/: local desktop and 360px renderings.
 
 The source/live providers, wallet availability, hosting availability, and operator key security remain operational dependencies. Test counts describe only the checks actually executed and do not imply independent security auditing or future uptime.
+
+## GitHub Pages follow-up
+
+The production build was checked under /near-underwrite/ with no API configured. scripts/smoke-pages.mjs verified real saved evidence, direct metric inspection, scenario editing, JSON export, wallet-connect availability, live testnet bundle verification, 360px layout, and zero localhost API requests. The separate Docker/API release remains available for shared persistence and AI.

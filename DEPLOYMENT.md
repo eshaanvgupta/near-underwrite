@@ -1,5 +1,13 @@
 # Deployment and operations
 
+## GitHub Pages research preview
+
+URL: https://eshaanvgupta.github.io/near-underwrite/
+
+The Pages workflow builds with the /near-underwrite/ asset base and an empty API URL by default. It attempts a bounded mainnet refresh at deployment time, then uploads the frontend and public evidence. Source times remain visible if that refresh fails.
+
+Pages supports evidence inspection, scenario changes, local comparisons, report exports, wallet-signed testnet publication, and read-only registry verification. It does not run Node or PostgreSQL. Shared saves and AI requests are disabled until a backend is supplied. To connect one later, set the public GitHub repository variable UNDERWRITE_API_URL to its HTTPS API base, configure that API's WEB_ORIGIN as https://eshaanvgupta.github.io, and rerun the Pages workflow. The API URL is public configuration; provider keys are never GitHub variables or build inputs.
+
 ## Local launch with no paid account
 
 ```sh
