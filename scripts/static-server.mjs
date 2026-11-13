@@ -21,5 +21,5 @@ const server = createServer(async (req, res) => {
     res.end(body);
   } catch { res.writeHead(404); res.end("Not found"); }
 });
-server.listen(4173, "0.0.0.0");
+server.listen(Number(process.env.WEB_PORT ?? 4173), "0.0.0.0");
 for (const signal of ["SIGTERM", "SIGINT"]) process.on(signal, () => server.close());

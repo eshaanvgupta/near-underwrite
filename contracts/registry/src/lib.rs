@@ -281,4 +281,27 @@ mod tests {
         context("bob.testnet", 1001);
         registry.publish(digest('d'), digest('e'), digest('f'), "v1".into(), Some(first.publication_id));
     }
+
+    #[test]
+    #[should_panic(expected = "insufficient storage deposit")]
+    fn rejects_underfunded_storage() {
+        let mut builder = VMContextBuilder::new();
+        builder.current_account_id("registry.testnet".parse().unwrap()).predecessor_account_id("alice.testnet".parse().unwrap()).attached_deposit(NearToken::from_yoctonear(1));
+        testing_env!(builder.build());
+        Registry::new().publish(digest('a'), digest('b'), digest('c'), "v1".into(), None);
+    }
+
+    #[test]
+    #[should_panic(expected = "parent publication does not exist")]
+    fn rejects_missing_parent() {
+        context("alice.testnet", 1000);
+        Registry::new().publish(digest('a'), digest('b'), digest('c'), "v1".into(), Some(digest('d')));
+    }
+
+    #[test]
+    #[should_panic(expected = "schema_version must be")]
+    fn rejects_oversized_schema() {
+        context("alice.testnet", 1000);
+        Registry::new().publish(digest('a'), digest('b'), digest('c'), "v".repeat(65), None);
+    }
 }

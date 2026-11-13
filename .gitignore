@@ -9,6 +9,7 @@ playwright-report/
 test-results/
 runtime/
 *.log
+*.tsbuildinfo
 .DS_Store
 evidence/private/
 apps/api/evidence/

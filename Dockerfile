@@ -5,7 +5,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages ./packages
 COPY apps ./apps
 COPY db ./db
-COPY scripts/static-server.mjs ./scripts/static-server.mjs
+COPY evidence ./evidence
+COPY scripts ./scripts
 RUN pnpm install --frozen-lockfile
 ARG VITE_REGISTRY_CONTRACT_ID
 ARG VITE_API_URL=/api

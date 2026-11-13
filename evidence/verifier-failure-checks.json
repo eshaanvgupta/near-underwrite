@@ -1,0 +1,11 @@
+{
+  "status": "confirmed",
+  "numerical_tampering": {
+    "exit": 1,
+    "output": "{\"status\":\"mismatching\",\"detail\":\"Deterministic calculations differ\"}"
+  },
+  "rpc_unavailable": {
+    "exit": 1,
+    "output": "{\"status\":\"unavailable\",\"error\":\"fetch failed\"}"
+  }
+}

@@ -18,6 +18,13 @@ export async function setupTestnetWallet(contractId: string): Promise<WalletConn
 
 export async function viewRegistry(contractId: string, methodName: string, args: unknown): Promise<unknown> {
   const rpc = import.meta.env.VITE_TESTNET_RPC_URL ?? "https://test.rpc.fastnear.com";
+  const deploymentResponse = await fetch("./evidence/deployment.json");
+  if (!deploymentResponse.ok) throw new Error("Registry code identity is unavailable");
+  const deployment = await deploymentResponse.json() as { contract_id: string; code_hash: string; network: string };
+  if (deployment.network !== "testnet" || deployment.contract_id !== contractId) throw new Error("Registry network/account mismatch");
+  const accountResponse = await fetch(rpc, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: "code-identity", method: "query", params: { request_type: "view_account", finality: "final", account_id: contractId } }) });
+  const account = await accountResponse.json() as { result?: { code_hash?: string } };
+  if (account.result?.code_hash !== deployment.code_hash) throw new Error("Registry code hash unavailable or mismatching");
   const response = await fetch(rpc, {
     method: "POST",
     headers: { "content-type": "application/json" },

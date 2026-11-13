@@ -7,6 +7,7 @@ import {
   type QualityFlag,
   type Snapshot,
   type ValidatorStake,
+  yoctoToNear,
 } from "@near-underwrite/shared";
 import type { Config } from "./config.js";
 import { boundedFetch } from "./http.js";
@@ -55,7 +56,7 @@ function observation<T>(
   return {
     metric_id: metricId,
     network: "mainnet",
-    status: "measured",
+    status: value === null ? "unavailable" : "measured",
     value,
     unit,
     source,
@@ -141,7 +142,7 @@ async function collectActivity(config: Config, latest: RpcBlock, fetchImpl: type
   const outcomes = new Map<string, { gas: bigint; burnt: bigint }>();
   for (const transaction of transactions) {
     try {
-      const result = await rpc<RpcTxOutcome>(config.MAINNET_RPC_URL, "tx", [transaction.hash, transaction.signer_id], fetchImpl);
+      const result = await rpc<RpcTxOutcome>(config.MAINNET_RPC_URL, "tx", { tx_hash: transaction.hash, sender_account_id: transaction.signer_id, wait_until: "FINAL" }, fetchImpl);
       const all = [result.transaction_outcome, ...result.receipts_outcome];
       for (const outcome of all) {
         if (outcomes.has(outcome.id)) continue;
@@ -289,7 +290,31 @@ export async function collectSnapshot(config: Config, fetchImpl: typeof fetch = 
       parameters: { limit: 30, joined_with: ["/v3/block-stats", "/v3/price-stats"] },
     }, retrievedAt, historyResult.history[0]?.date ?? null, {}, historyResult.raws, historyResult.flags),
   ];
-  const problems = [...activityResult.flags, ...historyResult.flags];
+  if (activityResult.sample.transactions_seen > 0 && activityResult.sample.outcomes_processed === 0) {
+    const metric = observations.find(item => item.metric_id === "near.mainnet.activity.execution_tokens_burnt");
+    if (metric) { metric.status = "unavailable"; metric.value = null; }
+  }
+  for (const [id, field, unit] of [
+    ["nearblocks.daily.total_supply", "total_supply_yocto", "yoctoNEAR"],
+    ["nearblocks.daily.transaction_volume_near", "transaction_volume_near", "NEAR"],
+    ["nearblocks.daily.transaction_fees_near", "transaction_fees_near", "NEAR"],
+  ] as const) observations.push(observation(id, historyResult.history.map(day => ({ date: day.date, value: day[field] })), unit, {
+    url: config.NEARBLOCKS_BASE_URL + "/v3/" + (field === "total_supply_yocto" ? "block-stats" : "txn-stats"),
+    method: "GET", parameters: { limit: 30 },
+  }, retrievedAt, historyResult.history[0]?.date ?? null, {}, historyResult.raws, historyResult.flags));
+  try {
+    const reference = await nearBlocks<{ data: { total_supply: string; circulating_supply: string; near_price: string; market_cap: string } }>(config.NEARBLOCKS_BASE_URL, "/v3/stats", fetchImpl);
+    const value = reference.data;
+    const flags: QualityFlag[] = [{ code: "price.update_time_unavailable", severity: "info", detail: "Reference retrieval time is known; source update time is not exposed." }];
+    const expectedCap = yoctoToNear(value.circulating_supply).mul(value.near_price);
+    if (!expectedCap.isZero() && expectedCap.minus(value.market_cap).abs().div(expectedCap).gt("0.01")) flags.push({ code: "price.market_cap_mismatch", severity: "warning", detail: "Reported market cap differs by more than 1% from circulating supply × price." });
+    if (BigInt(value.circulating_supply) > BigInt(value.total_supply)) flags.push({ code: "price.supply_mismatch", severity: "warning", detail: "Provider circulating supply exceeds total supply." });
+    if (value.circulating_supply === value.total_supply) flags.push({ code: "price.supply_labels_equal", severity: "warning", detail: "Provider reports equal circulating and total supply; both labels are retained with this quality flag." });
+    observations.push(observation("nearblocks.reference", value, "provider reference: yoctoNEAR and USD", { url: config.NEARBLOCKS_BASE_URL + "/v3/stats", method: "GET", parameters: {} }, retrievedAt, null, {}, reference, flags));
+  } catch (error) {
+    observations.push(observation("nearblocks.reference", null, "provider reference", { url: config.NEARBLOCKS_BASE_URL + "/v3/stats", method: "GET", parameters: {} }, retrievedAt, null, {}, null, [{ code: "reference.unavailable", severity: "warning", detail: safeError(error) }]));
+  }
+  const problems = [...activityResult.flags, ...historyResult.flags, ...observations.filter(item => item.metric_id === "nearblocks.reference").flatMap(item => item.quality_flags)];
   return {
     schema_version: "near-underwrite.snapshot.v1",
     id: `mainnet-${block.header.height}-${block.header.hash.slice(0, 10)}`,

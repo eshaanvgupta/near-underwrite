@@ -111,12 +111,28 @@ export function App() {
   const [registryRecord, setRegistryRecord] = useState<Record<string, unknown> | null>(null);
   const [verifyStatus, setVerifyStatus] = useState("Upload a bundle and enter a publication ID");
   const [verifyFile, setVerifyFile] = useState<ResearchBundle | null>(null);
+  const [recordedPublications, setRecordedPublications] = useState<Array<{ publication_id: string; parent_id: string | null }>>([]);
   const [contractId, setContractId] = useState(import.meta.env.VITE_REGISTRY_CONTRACT_ID ?? "");
   useEffect(() => {
-    if (!contractId) void fetch("./evidence/deployment.json").then(response => response.ok ? response.json() : null).then((deployment: { network?: string; contract_id?: string } | null) => {
+    void fetch("./evidence/deployment.json").then(response => response.ok ? response.json() : null).then((deployment: { network?: string; contract_id?: string; publications?: Array<{ publication_id: string; parent_id: string | null }> } | null) => {
       if (deployment?.network === "testnet" && deployment.contract_id?.endsWith(".testnet")) setContractId(deployment.contract_id);
+      setRecordedPublications(deployment?.publications ?? []);
     }).catch(() => {});
   }, [contractId]);
+
+  useEffect(() => {
+    if (!contractId || !accountId || !prepared) return;
+    const query = new URLSearchParams(window.location.search);
+    if (query.has("errorCode")) { setPublicationStatus("Wallet rejected the transaction: " + (query.get("errorMessage") ?? query.get("errorCode"))); return; }
+    if (!query.has("transactionHashes")) return;
+    setScreen("publication"); setPublicationStatus("Checking wallet callback against final testnet state…");
+    void viewRegistry(contractId, "get_author_count", { author: accountId }).then(async count => {
+      const history = await viewRegistry(contractId, "get_author_history", { author: accountId, from_index: Math.max(0, Number(count) - 20), limit: 20 }) as Array<Record<string, unknown>>;
+      const record = history.find(item => item.report_digest === digests?.report_digest);
+      if (record) { setRegistryRecord(record); setPublicationStatus("Confirmed in final testnet registry state"); }
+      else setPublicationStatus("Transaction pending or absent from final state; reload to check again");
+    }).catch(() => setPublicationStatus("Finality check unavailable; saved report and wallet callback remain available for retry"));
+  }, [contractId, accountId, prepared, digests]);
 
   const refresh = async () => {
     setLoading(true);
@@ -199,6 +215,7 @@ export function App() {
     : [], [snapshot, assumptions, modelResult.value]);
 
   const setAssumption = (key: keyof ModelAssumptions, value: string | null) => {
+    analysisRef.current = null; setAiResults([]);
     setAssumptions((current) => current ? { ...current, [key]: value } : current);
     setPrepared(null);
     setDigests(null);
@@ -206,6 +223,7 @@ export function App() {
 
   const selectCase = (name: keyof typeof cases) => {
     if (!snapshot) return;
+    analysisRef.current = null; setAiResults([]);
     setCaseName(name);
     setAssumptions(assumptionsFor(snapshot, name));
     setPrepared(null);
@@ -531,6 +549,12 @@ export function App() {
             <ol><li>Recompute canonical report, evidence, and model digests.</li><li>Read the immutable publication from the configured testnet contract at finality.</li><li>Return matching, mismatching, or unavailable—never a false success.</li></ol>
           </article>
         </div>
+        {recordedPublications.length > 0 && <article className="quality-panel" style={{ marginTop: "1rem", display: "block" }}>
+          <p className="eyebrow">Recorded testnet proof</p><h2>Two immutable reports, one revision history</h2>
+          <p>Registry: <code>{contractId}</code>. The full-access deployment key is retained locally and can upgrade the account code. Verification checks the recorded code hash.</p>
+          {recordedPublications.map((publication, index) => <p key={publication.publication_id}><a href={"./evidence/report" + (index === 1 ? "-v2" : "") + ".json"} download>Download report {index + 1}</a> · <code>{publication.publication_id}</code>{publication.parent_id && <small> · revises {publication.parent_id}</small>}</p>)}
+          <a href="./evidence/deployment.json" target="_blank" rel="noreferrer">Inspect transaction hashes, code hash, access keys, and final records</a>
+        </article>}
       </section>}
 
       {screen === "settings" && <section aria-labelledby="settings-title">
@@ -545,7 +569,7 @@ export function App() {
               setModel("");
             }}><option value="near-ai">NEAR AI Cloud</option><option value="openai-compatible">Allowlisted OpenAI-compatible</option><option value="local">Operator-only local inference</option></select></label>
             <label>Base URL<input value={endpoint} onChange={(event) => setEndpoint(event.target.value)} readOnly={provider === "near-ai"} /></label>
-            <label>API key<span className="password-row"><input type={showKey ? "text" : "password"} value={apiKey} onChange={(event) => setApiKey(event.target.value)} autoComplete="off" /><button type="button" onClick={() => setShowKey((value) => !value)}>{showKey ? "Hide" : "Reveal"}</button></span></label>
+            <label>API key<span className="password-row"><input aria-label="API key" type={showKey ? "text" : "password"} value={apiKey} onChange={(event) => setApiKey(event.target.value)} autoComplete="off" /><button type="button" onClick={() => setShowKey((value) => !value)}>{showKey ? "Hide" : "Reveal"}</button></span></label>
             <label>Model<input value={model} onChange={(event) => setModel(event.target.value)} placeholder="Discover or enter an available model" /></label>
             <div className="button-row"><button type="button" disabled={!apiKey || !endpoint} onClick={async () => {
               setModelsStatus("Testing connection and discovering models…");

@@ -1,0 +1,31 @@
+name: Reproducible release checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.16.0
+      - run: corepack enable && corepack prepare pnpm@11.25.0 --activate
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:shared
+      - run: pnpm test:unit
+      - run: pnpm -r --if-present build
+      - run: pnpm exec playwright install --with-deps msedge
+      - run: pnpm test:browser
+      - run: pnpm verify:bundle evidence/report.json
+  registry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.0
+          targets: wasm32-unknown-unknown
+      - run: cargo build --locked --manifest-path contracts/registry/Cargo.toml --target wasm32-unknown-unknown --release
+      - run: cargo test --locked --manifest-path contracts/registry/Cargo.toml
+      - run: cargo test --locked --manifest-path contracts/registry/Cargo.toml --test sandbox -- --ignored --nocapture

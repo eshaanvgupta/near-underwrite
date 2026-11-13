@@ -86,6 +86,7 @@ export class PostgresStore implements Store {
   }
   async saveSnapshot(snapshot: Snapshot) {
     await this.pool.query("INSERT INTO snapshots(id, created_at, payload) VALUES ($1,$2,$3) ON CONFLICT (id) DO NOTHING", [snapshot.id, snapshot.created_at, snapshot]);
+    await this.pool.query("DELETE FROM snapshots WHERE id NOT IN (SELECT id FROM snapshots ORDER BY created_at DESC LIMIT 30) AND id NOT IN (SELECT DISTINCT ON (created_at::date) id FROM snapshots WHERE created_at > now() - interval '32 days' ORDER BY created_at::date, created_at DESC) AND id NOT IN (SELECT jsonb_array_elements_text(payload->'snapshot_ids') FROM workspaces)");
   }
   async latestSnapshot() {
     const result = await this.pool.query<{ payload: Snapshot }>("SELECT payload FROM snapshots ORDER BY created_at DESC LIMIT 1");

@@ -1,0 +1,15 @@
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+await mkdir(new URL("../runtime/", import.meta.url), { recursive: true });
+const report = JSON.parse(await readFile(new URL("../evidence/report.json", import.meta.url), "utf8"));
+const deployment = JSON.parse(await readFile(new URL("../evidence/deployment.json", import.meta.url), "utf8"));
+report.result.annual_net_monetary_change_near = "999";
+await writeFile(new URL("../runtime/mismatching-report.json", import.meta.url), JSON.stringify(report));
+const mismatch = spawnSync(process.execPath, ["scripts/verify.mjs", "runtime/mismatching-report.json"], { encoding: "utf8" });
+deployment.rpc_url = "http://127.0.0.1:1";
+await writeFile(new URL("../runtime/unavailable-registry.json", import.meta.url), JSON.stringify(deployment));
+const unavailable = spawnSync(process.execPath, ["scripts/verify.mjs", "evidence/report.json", "runtime/unavailable-registry.json", deployment.publications[0].publication_id], { encoding: "utf8" });
+if (mismatch.status !== 1 || !mismatch.stdout.includes("mismatching") || unavailable.status !== 1 || !unavailable.stderr.includes("unavailable")) throw new Error("Verifier did not fail closed");
+const results = { status: "confirmed", numerical_tampering: { exit: mismatch.status, output: mismatch.stdout.trim() }, rpc_unavailable: { exit: unavailable.status, output: unavailable.stderr.trim() } };
+await writeFile(new URL("../evidence/verifier-failure-checks.json", import.meta.url), JSON.stringify(results, null, 2));
+console.log(JSON.stringify(results));

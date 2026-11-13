@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: near-underwrite
+    runtime: docker
+    plan: free
+    dockerCommand: node scripts/host.mjs
+    healthCheckPath: /api/health/ready
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: near-underwrite-db
+          property: connectionString
+      - key: VITE_API_URL
+        value: /api
+      - key: ALLOW_MEMORY_DB
+        value: "false"
+databases:
+  - name: near-underwrite-db
+    plan: free
+    databaseName: underwrite
+    user: underwrite

@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 
 const snapshot = {
   schema_version: "near-underwrite.snapshot.v1",
@@ -143,4 +145,41 @@ test("mobile workflow has no viewport overflow", async ({ page }, testInfo) => {
   await page.getByRole("button", { name: "AI settings" }).click();
   await expect(page.getByRole("heading", { name: "Your provider. Your key. One request at a time." })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+});
+
+test("provider configuration handles rejection and an explicit retry (synthetic responses)", async ({ page }) => {
+  await page.route("**/v1/ai/models", route => route.fulfill({ status: 401, json: { error: "Provider rejected request with HTTP 401" } }));
+  await page.goto("/");
+  await page.getByRole("button", { name: "AI settings" }).click();
+  await page.getByLabel("API key", { exact: true }).fill("synthetic-browser-test-key");
+  await page.getByLabel("Model", { exact: true }).fill("synthetic-model");
+  await page.getByRole("button", { name: "Test & discover" }).click();
+  await expect(page.getByText(/Connection failed:.*401/)).toBeVisible();
+  await page.route("**/v1/ai/models", route => route.fulfill({ json: { data: [{ id: "synthetic-model" }] } }));
+  await page.getByRole("button", { name: "Test & discover" }).click();
+  await expect(page.getByText("Connection succeeded · 1 model records returned")).toBeVisible();
+  await page.getByRole("button", { name: "Clear / lock" }).click();
+  await page.getByRole("button", { name: "Bull / Bear room" }).click();
+  await expect(page.getByRole("button", { name: "Run one visible request" }).first()).toBeDisabled();
+});
+
+test("browser verifies the recorded bundle and rejects a changed file (RPC responses mocked)", async ({ page }) => {
+  const deployment = JSON.parse(await readFile(new URL("../../../evidence/deployment.json", import.meta.url), "utf8"));
+  await page.route("**/evidence/deployment.json", route => route.fulfill({ json: deployment }));
+  await page.route("https://test.rpc.fastnear.com/**", route => {
+    const params = route.request().postDataJSON()?.params;
+    const result = params?.request_type === "view_account" ? { code_hash: deployment.code_hash } : { result: Array.from(Buffer.from(JSON.stringify(deployment.publications[0]))) };
+    return route.fulfill({ json: { result }, headers: { "access-control-allow-origin": "*" } });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Publication registry" }).click();
+  await expect(page.getByRole("button", { name: "Connect testnet wallet" })).toBeVisible();
+  await page.getByLabel("Downloaded research bundle").setInputFiles(fileURLToPath(new URL("../../../evidence/report.json", import.meta.url)));
+  await page.getByLabel("Publication ID", { exact: true }).fill(deployment.publications[0].publication_id);
+  await page.getByRole("button", { name: "Recompute & compare final state" }).click();
+  await expect(page.getByText("Matching: downloaded bundle reproduces all three on-chain digests")).toBeVisible();
+  const bundle = JSON.parse(await readFile(new URL("../../../evidence/report.json", import.meta.url), "utf8")); bundle.notes += "changed";
+  await page.getByLabel("Downloaded research bundle").setInputFiles({ name: "changed.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(bundle)) });
+  await page.getByRole("button", { name: "Recompute & compare final state" }).click();
+  await expect(page.getByText("Mismatching: one or more recomputed digests differ from the registry")).toBeVisible();
 });

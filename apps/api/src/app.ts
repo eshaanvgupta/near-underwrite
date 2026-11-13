@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { aiRequestSchema, publicationSchema, workspaceSchema, canonicalJson } from "@near-underwrite/shared";
 import type { Config } from "./config.js";
 import { collectSnapshot } from "./collector.js";
@@ -128,6 +129,19 @@ export function buildApp(config: Config, store: Store) {
 
   app.post("/v1/publications", async (request) => {
     const publication = publicationSchema.parse(request.body);
+    const deployment = JSON.parse(await readFile(new URL("../../../evidence/deployment.json", import.meta.url), "utf8")) as { network: string; rpc_url: string; contract_id: string; code_hash: string };
+    if (deployment.network !== "testnet") throw new Error("Publication cache requires testnet");
+    const rpc = async (method: string, params: unknown) => {
+      const response = await fetch(deployment.rpc_url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: "publication-cache", method, params }), signal: AbortSignal.timeout(20000) });
+      const body = await response.json() as { error?: unknown; result?: unknown };
+      if (!response.ok || body.error) throw new Error("Testnet evidence unavailable");
+      return body.result;
+    };
+    const account = await rpc("query", { request_type: "view_account", finality: "final", account_id: deployment.contract_id }) as { code_hash: string };
+    if (account.code_hash !== deployment.code_hash) throw new Error("Registry code identity mismatch");
+    const response = await rpc("query", { request_type: "call_function", finality: "final", account_id: deployment.contract_id, method_name: "get_publication", args_base64: Buffer.from(JSON.stringify({ publication_id: publication.publication_id })).toString("base64") }) as { result: number[] };
+    const onChain = JSON.parse(Buffer.from(response.result).toString("utf8")) as Record<string, unknown> | null;
+    if (!onChain || !["author", "report_digest", "evidence_digest", "model_digest", "schema_version", "parent_id", "block_height", "chain_timestamp_ns"].every(key => onChain[key] === publication[key as keyof typeof publication])) throw new Error("Publication does not match final registry state");
     await store.savePublication(publication);
     return publication;
   });

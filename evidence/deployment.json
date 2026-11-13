@@ -1,0 +1,88 @@
+{
+  "network": "testnet",
+  "rpc_url": "https://test.rpc.fastnear.com",
+  "contract_id": "underwrite-mweetqnk.testnet",
+  "source_commit": "09b1ea69add491199a5cd2bb3a7a8ae8893e1839",
+  "code_hash": "DePfxj1596uZE3N5GWYSmN5AMEu3svvuxXoK2h4RXcUB",
+  "wasm_sha256": "bbe05e39a48136801d504b9ff19f177be118833ca75b5c9d6faaf668c56f4fa4",
+  "transactions": [
+    {
+      "method": "deploy_and_initialize",
+      "transaction_hash": "FZSpDevctBMH8JjThrZX1FtciF3mdmoZeLepa4h9QyXD",
+      "signer_id": "underwrite-mweetqnk.testnet",
+      "status": "confirmed",
+      "logs": [],
+      "receipt_block_hashes": [
+        "9TcfWPDAjQGofWkoQG35snzQBCy7StRYHGzTo1TzzcH6",
+        "ARPLc19j5EUUGvBmFoyvhYLhgbounCbN3Jv32fRSHQzt"
+      ]
+    },
+    {
+      "method": "publish_revision_1",
+      "transaction_hash": "Cq7V64isvHxoUan2ZfPF5FqxLeXgh2H58juTaduPmKiZ",
+      "signer_id": "underwrite-mweetqnk.testnet",
+      "status": "confirmed",
+      "logs": [
+        "EVENT_JSON:{\"standard\":\"near_underwrite\",\"version\":\"1.0.0\",\"event\":\"publication_created\",\"data\":[{\"publication_id\":\"56e4078379bdd86fdc54bb71ae89047d74282a6243bcaee071f446ffa6e6f79b\",\"author\":\"underwrite-mweetqnk.testnet\",\"parent_id\":null}]}"
+      ],
+      "receipt_block_hashes": [
+        "CVNGXh3NtGsneHkzhPhrp1gt18xvGFxc77Nm5kMfWyDf",
+        "7AEN9j7aoseuLaYpmozbXpbcrVRygKt5WEiwHbwFXaJZ",
+        "G6Sn7KuzaUNnUj7WC7ZBbYyRLv5PQHDhPMiDPVn8C4ih",
+        "7AEN9j7aoseuLaYpmozbXpbcrVRygKt5WEiwHbwFXaJZ"
+      ]
+    },
+    {
+      "method": "publish_revision_2",
+      "transaction_hash": "FmzF3Bugj9scnYvnYpATQy2x6XPpPoz9ECMcfeLSKu3i",
+      "signer_id": "underwrite-mweetqnk.testnet",
+      "status": "confirmed",
+      "logs": [
+        "EVENT_JSON:{\"standard\":\"near_underwrite\",\"version\":\"1.0.0\",\"event\":\"publication_created\",\"data\":[{\"publication_id\":\"1c3a2a24bdb595dbca63db0a687726f72ec4765638bb3f3e75c9cad6b51008c4\",\"author\":\"underwrite-mweetqnk.testnet\",\"parent_id\":\"56e4078379bdd86fdc54bb71ae89047d74282a6243bcaee071f446ffa6e6f79b\"}]}"
+      ],
+      "receipt_block_hashes": [
+        "C91LXiUBnWznYjzZZ7VfQWna17qH5yp2CyGDS9wjo5NP",
+        "8adbHcTZ22PHe34ApWaPmzDCR63LEAMMpFht7LmEWmJZ",
+        "3asD628d3qsn5m3RBm1fJzfNW3oGmt9xt3d959MHUSCb",
+        "8adbHcTZ22PHe34ApWaPmzDCR63LEAMMpFht7LmEWmJZ"
+      ]
+    }
+  ],
+  "publications": [
+    {
+      "publication_id": "56e4078379bdd86fdc54bb71ae89047d74282a6243bcaee071f446ffa6e6f79b",
+      "author": "underwrite-mweetqnk.testnet",
+      "report_digest": "089cfae67cbda6d65d28487ad3267daa6e397611edfc48dba66d998f53a21c3e",
+      "evidence_digest": "b028b7419eb0bcb96c8782e50f2d01663906a3b2ff2743c94e9079dfac5c4ca2",
+      "model_digest": "12aaff4d5fe11bc5fadecd85a2063e30e28a14934c92ef506eb11ae7a78ab662",
+      "schema_version": "near-underwrite.bundle.v1",
+      "parent_id": null,
+      "lineage_root_id": "56e4078379bdd86fdc54bb71ae89047d74282a6243bcaee071f446ffa6e6f79b",
+      "block_height": "277454475",
+      "chain_timestamp_ns": "1794540097062102604"
+    },
+    {
+      "publication_id": "1c3a2a24bdb595dbca63db0a687726f72ec4765638bb3f3e75c9cad6b51008c4",
+      "author": "underwrite-mweetqnk.testnet",
+      "report_digest": "33bd8a9204e54ec88e9b4e0364c0fbb880b52a7a05e268ee72a1175fbc63951c",
+      "evidence_digest": "b028b7419eb0bcb96c8782e50f2d01663906a3b2ff2743c94e9079dfac5c4ca2",
+      "model_digest": "12aaff4d5fe11bc5fadecd85a2063e30e28a14934c92ef506eb11ae7a78ab662",
+      "schema_version": "near-underwrite.bundle.v1",
+      "parent_id": "56e4078379bdd86fdc54bb71ae89047d74282a6243bcaee071f446ffa6e6f79b",
+      "lineage_root_id": "56e4078379bdd86fdc54bb71ae89047d74282a6243bcaee071f446ffa6e6f79b",
+      "block_height": "277454482",
+      "chain_timestamp_ns": "1794540101317964052"
+    }
+  ],
+  "access_keys": [
+    {
+      "access_key": {
+        "nonce": 277454441000003,
+        "permission": "FullAccess"
+      },
+      "public_key": "ed25519:5TLtU3imh19J3wTYYwWHodGCJsDZStpMNcGpBG25nwpA"
+    }
+  ],
+  "upgrade_authority": "The locally retained full-access deployment key can replace code and alter account keys. The release does not delete or renounce that authority.",
+  "verified_at": "2026-11-13T03:21:44.756Z"
+}
