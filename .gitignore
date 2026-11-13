@@ -1,0 +1,17 @@
+node_modules/
+dist/
+target/
+.env
+.env.*
+!.env.example
+coverage/
+playwright-report/
+test-results/
+runtime/
+*.log
+.DS_Store
+evidence/private/
+apps/api/evidence/
+*.pem
+*.key
+*.json.bak

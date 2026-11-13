@@ -1,0 +1,38 @@
+{
+  "name": "near-underwrite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Evidence-linked NEAR token-demand research instrument",
+  "license": "MIT",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24.16.0 <25",
+    "pnpm": ">=11.25.0 <12"
+  },
+  "scripts": {
+    "dev": "pnpm build:shared && pnpm --parallel --filter @near-underwrite/api --filter @near-underwrite/web dev",
+    "dev:api": "pnpm build:shared && pnpm --filter @near-underwrite/api dev",
+    "dev:web": "pnpm build:shared && pnpm --filter @near-underwrite/web dev",
+    "build:shared": "pnpm --filter @near-underwrite/shared build",
+    "build": "pnpm -r --if-present build && pnpm contract:build",
+    "test": "pnpm test:unit && pnpm test:contract",
+    "test:unit": "pnpm -r --if-present test",
+    "test:browser": "pnpm --filter @near-underwrite/web test:browser",
+    "test:contract": "node scripts/rust.mjs test",
+    "test:sandbox": "node scripts/rust.mjs sandbox",
+    "contract:build": "node scripts/rust.mjs build",
+    "collect": "pnpm build:shared && pnpm --filter @near-underwrite/api collect",
+    "verify:bundle": "node scripts/verify.mjs",
+    "report": "node scripts/make-report.mjs",
+    "testnet:prepare": "node scripts/testnet.mjs",
+    "demo:testnet": "node scripts/testnet.mjs",
+    "verify:testnet": "node scripts/verify.mjs",
+    "check": "pnpm test:unit && pnpm build && pnpm test:browser",
+    "fresh-check": "pnpm install --frozen-lockfile && pnpm check"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "near-api-js": "7.5.3",
+    "typescript": "7.0.2"
+  }
+}
