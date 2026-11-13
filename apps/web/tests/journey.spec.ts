@@ -106,6 +106,9 @@ test("no-key visitor inspects evidence, assumptions, and honest AI setup", async
   await expect(page.getByRole("heading", { name: "Usage is visible. Value capture still has to be proved." })).toBeVisible();
   await expect(page.getByText("NEAR · measured at block 224227015")).toBeVisible();
   await expect(page.getByText("No missing value is replaced with zero.")).toBeVisible();
+  await page.getByRole("button", { name: "near.mainnet.finalized.total_supply", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Measurement detail" })).toContainText("1311524128808684245442073451159003");
+  await page.getByRole("button", { name: "Close measurement" }).click();
   await page.getByRole("button", { name: "Scenario workbench" }).click();
   await expect(page.getByRole("heading", { name: "Change one bridge. See what survives." })).toBeVisible();
   await page.getByLabel("Annual actual protocol burn").fill("30000000");

@@ -74,6 +74,7 @@ export function App() {
   const [caseName, setCaseName] = useState<keyof typeof cases>("base");
   const [assumptions, setAssumptions] = useState<ModelAssumptions | null>(null);
   const [claimOpen, setClaimOpen] = useState("claim.monetary-balance");
+  const [inspectedMetricId, setInspectedMetricId] = useState("");
   const [notes, setNotes] = useState("");
   const [workspaceId] = useState(() => {
     const existing = localStorage.getItem("near-underwrite.workspace-id");
@@ -407,8 +408,8 @@ export function App() {
             {claimOpen === claim.id && <div className="claim-detail">
               <p className="claim-statement">{claim.statement}</p>
               <dl>
-                <div><dt>Evidence</dt><dd>{claim.metric_ids.map((id) => <code key={id}>{id}</code>)}</dd></div>
-                <div><dt>Assumptions</dt><dd>{claim.assumption_ids.map((id) => <code key={id}>{id}</code>)}</dd></div>
+                <div><dt>Evidence</dt><dd>{claim.metric_ids.map((id) => <button className="metric-link" key={id} onClick={() => setInspectedMetricId(id)}>{id}</button>)}</dd></div>
+                <div><dt>Assumptions</dt><dd>{claim.assumption_ids.map((id) => <button className="metric-link" key={id} onClick={() => setScreen("workbench")}>{id}</button>)}</dd></div>
                 <div><dt>Formula</dt><dd>{claim.formula}</dd></div>
                 <div><dt>Uncertainty</dt><dd>{claim.uncertainty}</dd></div>
                 <div><dt>Counterargument</dt><dd>{claim.counterargument}</dd></div>
@@ -417,6 +418,16 @@ export function App() {
             </div>}
           </article>)}
         </div>
+        {inspectedMetricId && <section className="measurement-detail" aria-label="Measurement detail">
+          <div className="button-row"><h2>{inspectedMetricId}</h2><button onClick={() => setInspectedMetricId("")}>Close measurement</button></div>
+          {(() => {
+            const metric = snapshot.observations.find(item => item.metric_id === inspectedMetricId);
+            if (metric) return <><StatusPill tone={metric.status === "unavailable" ? "warn" : "good"}>{metric.status}</StatusPill><p>Unit: {metric.unit} · Retrieved: {metric.retrieved_at} · Source time: {metric.source_time ?? "unavailable"}</p><p><code>{metric.source.method} {metric.source.url}</code></p><pre>{JSON.stringify({ value: metric.value, request: metric.source.parameters, block_height: metric.block_height, block_hash: metric.block_hash, epoch_id: metric.epoch_id, transformation_version: metric.transformation_version, digest: metric.raw_response_digest, quality_flags: metric.quality_flags }, null, 2)}</pre></>;
+            const historyField = inspectedMetricId === "nearblocks.daily.total_supply" ? "total_supply_yocto" : inspectedMetricId === "nearblocks.daily.transaction_volume_near" ? "transaction_volume_near" : null;
+            if (historyField) return <><StatusPill>derived view of archived history</StatusPill><p>This older cached snapshot stores daily metrics inside its history observation. Values below are selected directly from those recorded dates.</p><pre>{JSON.stringify(snapshot.history.map(day => ({ date: day.date, value: day[historyField], source_digest: day.source_digest })), null, 2)}</pre></>;
+            return <p>This metric is unavailable in this snapshot. Export the bundle to inspect the available source records.</p>;
+          })()}
+        </section>}
         <article className="quality-panel">
           <div><p className="eyebrow">Lineage & quality</p><h2>No missing value is replaced with zero.</h2></div>
           <ul>{snapshot.completeness.problems.length ? snapshot.completeness.problems.map((problem) => <li key={problem.code}><StatusPill tone={problem.severity === "error" ? "bad" : "warn"}>{problem.severity}</StatusPill><span><b>{problem.code}</b> — {problem.detail}</span></li>) : <li><StatusPill tone="good">complete</StatusPill><span>All configured adapters returned a usable result for this snapshot.</span></li>}</ul>
