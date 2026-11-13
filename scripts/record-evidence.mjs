@@ -4,7 +4,9 @@ import { createHash } from "node:crypto";
 const files = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" }).split("\0").filter(Boolean);
 for (const file of files.filter(file => !file.endsWith(".png") && !file.endsWith(".webm"))) {
   const text = await readFile(file, "utf8");
-  if (/ed25519:[1-9A-HJ-NP-Za-km-z]{80,}/.test(text)) throw new Error("Potential private key in tracked file: " + file);
+  // Public NEAR transaction signatures are also 64-byte base58 strings. Match
+  // secret-bearing field names rather than mistaking public signatures for keys.
+  if (/(?:private_key|secret_key)\s*["']?\s*:\s*["']ed25519:[1-9A-HJ-NP-Za-km-z]{80,}/.test(text)) throw new Error("Potential private key field in tracked file: " + file);
 }
 async function tail(path, count = 50) {
   const raw = await readFile(path);
@@ -20,7 +22,7 @@ const checks = {
   sandbox: { command: "pnpm test:sandbox", passed: 1, detail: "Compiled-WASM publication and linked revision scenario; executed separately from Rust unit command." },
   browser: { command: "pnpm test:browser", output_tail: await tail("browser-output.log", 40) },
   fresh_clone: { source_commit: "402b884e99201c365630ac66277184be2f3eaa50", frozen_install: "passed", application_builds: "passed", unit_tests: "22 passed", local_bundle_verifier: "matching" },
-  secrets_scan: "No full-length NEAR private key pattern in tracked text files",
+  secrets_scan: "No literal full-length NEAR private/secret key field in tracked text files; public transaction signatures are preserved as evidence",
   artifacts: {},
   hosted_web_url: null, hosted_api_url: null,
   hosting_input_required: "Owner-controlled free hosting account; render.yaml and Docker Compose provided.",

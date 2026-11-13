@@ -1,0 +1,48 @@
+{
+  "checked_at": "2026-11-13T03:42:22.944Z",
+  "source_commit": "2ebc5c7fd181a9276590bd16299632cb64d46821",
+  "runtime_versions": {
+    "node": "v24.16.0",
+    "pnpm": "11.25.0",
+    "rust": "1.97.0",
+    "near_sdk": "5.30.1",
+    "postgres_image": "postgres:18.3-alpine"
+  },
+  "unit_tests": {
+    "command": "pnpm test:unit",
+    "passed": 22,
+    "output_tail": "pnpm.cmd : $ pnpm -r --if-present test\nAt line:2 char:30\n+ ... scripts/capture-ui.mjs; pnpm.cmd test:unit *> unit-output.log; Get-Co ...\n+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : NotSpecified: ($ pnpm -r --if-present test:String) [], RemoteException\n    + FullyQualifiedErrorId : NativeCommandError\n \nScope: 3 of 4 workspace projects\npackages/shared test$ vitest run\npackages/shared test:  RUN  v5.1.0 C:/Users/eshaa/OneDrive/Desktop/Hackathons/NEAR Hackathon/near-underwrite/packages/shared\npackages/shared test:  Test Files  1 passed (1)\npackages/shared test:       Tests  5 passed (5)\npackages/shared test:    Start at  09:05:50\npackages/shared test:    Duration  308ms (import 75%, transform 15%, tests 6%, worker 3%)\npackages/shared test: Done\napps/api test$ vitest run\napps/web test$ vitest run src\napps/api test:  RUN  v5.1.0 C:/Users/eshaa/OneDrive/Desktop/Hackathons/NEAR Hackathon/near-underwrite/apps/api\napps/web test:  RUN  v5.1.0 C:/Users/eshaa/OneDrive/Desktop/Hackathons/NEAR Hackathon/near-underwrite/apps/web\napps/web test:  Test Files  1 passed (1)\napps/web test:       Tests  2 passed (2)\napps/web test:    Start at  09:05:51\napps/web test:    Duration  259ms (import 75%, transform 17%, worker 6%, tests 2%)\napps/web test: Done\napps/api test: {\"level\":30,\"time\":1794540952189,\"pid\":18188,\"hostname\":\"Eshaan\",\"reqId\":\"req-1\",\"req\":{\"method\":\"POST\",\"url\":\"/v1/ai/models\",\"host\":\"localhost:80\",\"remoteAddress\":\"127.0.0.1\"},\"msg\":\"incoming request\"}\napps/api test: {\"level\":30,\"time\":1794540952196,\"pid\":18188,\"hostname\":\"Eshaan\",\"reqId\":\"req-1\",\"res\":{\"statusCode\":403},\"responseTime\":4.228200000000015,\"msg\":\"request completed\"}\napps/api test: {\"level\":30,\"time\":1794540952197,\"pid\":18188,\"hostname\":\"Eshaan\",\"reqId\":\"req-2\",\"req\":{\"method\":\"POST\",\"url\":\"/v1/ai/models\",\"host\":\"localhost:80\",\"remoteAddress\":\"127.0.0.1\"},\"msg\":\"incoming request\"}\napps/api test: {\"level\":50,\"time\":1794540952203,\"pid\":18188,\"hostname\":\"Eshaan\",\"error\":\"A valid browser session capability is required\"}\napps/api test: {\"level\":30,\"time\":1794540952204,\"pid\":18188,\"hostname\":\"Eshaan\",\"reqId\":\"req-2\",\"res\":{\"statusCode\":401},\"responseTime\":6.6177000000000135,\"msg\":\"request completed\"}\napps/api test:  Test Files  4 passed (4)\napps/api test:       Tests  15 passed (15)\napps/api test:    Start at  09:05:51\napps/api test:    Duration  621ms (import 54%, tests 29%, transform 14%, worker 2%)\napps/api test: Done\n"
+  },
+  "registry_tests": {
+    "command": "pnpm test:contract",
+    "passed": 6,
+    "output_tail": "   Compiling near-underwrite-registry v1.0.0 (/mnt/c/Users/eshaa/OneDrive/Desktop/Hackathons/NEAR \nHackathon/near-underwrite/contracts/registry)\n   Compiling near-jsonrpc-client v0.23.0\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 51s\n     Running unittests src/lib.rs (/tmp/near-underwrite-target/debug/deps/near_underwrite_registry-096ff0549bb16485)\n\nrunning 6 tests\ntest tests::rejects_missing_parent - should panic ... ok\ntest tests::rejects_underfunded_storage - should panic ... ok\ntest tests::rejects_oversized_schema - should panic ... ok\ntest tests::rejects_invalid_hash_encoding - should panic ... ok\ntest tests::rejects_cross_author_parent - should panic ... ok\ntest tests::publishes_append_only_revision_lineage_and_pages ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s\n\n     Running tests/sandbox.rs (/tmp/near-underwrite-target/debug/deps/sandbox-d08adabc9190818c)\n\nrunning 1 test\ntest actual_wasm_publication_and_revision ... ignored, requires compiled WASM and the NEAR sandbox binary\n\ntest result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests near_underwrite_registry\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  "sandbox": {
+    "command": "pnpm test:sandbox",
+    "passed": 1,
+    "detail": "Compiled-WASM publication and linked revision scenario; executed separately from Rust unit command."
+  },
+  "browser": {
+    "command": "pnpm test:browser",
+    "output_tail": "[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)\n\nRunning 12 tests using 8 workers\n\n(node:33572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:23740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:28288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:19344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:26328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:26088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:13608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:11796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n  -   1 [desktop] › tests\\journey.spec.ts:140:1 › mobile workflow has no viewport overflow\n  ok  7 [mobile] › tests\\journey.spec.ts:104:1 › no-key visitor inspects evidence, assumptions, and honest AI setup (4.1s)\n  ok  2 [desktop] › tests\\journey.spec.ts:132:1 › publication screen is truthful when no deployment is configured (4.2s)\n  ok  5 [mobile] › tests\\journey.spec.ts:118:1 › workspace saves and report exports a credential-free bundle (4.3s)\n  ok  8 [desktop] › tests\\journey.spec.ts:104:1 › no-key visitor inspects evidence, assumptions, and honest AI setup (4.2s)\n  ok  3 [desktop] › tests\\journey.spec.ts:118:1 › workspace saves and report exports a credential-free bundle (4.3s)\n  ok  6 [desktop] › tests\\journey.spec.ts:150:1 › provider configuration handles rejection and an explicit retry (synthetic responses) (4.5s)\n  ok  4 [desktop] › tests\\journey.spec.ts:166:1 › browser verifies the recorded bundle and rejects a changed file (RPC responses mocked) (4.6s)\n  ok  9 [mobile] › tests\\journey.spec.ts:140:1 › mobile workflow has no viewport overflow (1.0s)\n(node:31548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n  ok 10 [mobile] › tests\\journey.spec.ts:166:1 › browser verifies the recorded bundle and rejects a changed file (RPC responses mocked) (2.0s)\n  ok 11 [mobile] › tests\\journey.spec.ts:150:1 › provider configuration handles rejection and an explicit retry (synthetic responses) (1.2s)\n(node:27160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n  ok 12 [mobile] › tests\\journey.spec.ts:132:1 › publication screen is truthful when no deployment is configured (709ms)\n\n  1 skipped\n  11 passed (19.7s)\n"
+  },
+  "fresh_clone": {
+    "source_commit": "402b884e99201c365630ac66277184be2f3eaa50",
+    "frozen_install": "passed",
+    "application_builds": "passed",
+    "unit_tests": "22 passed",
+    "local_bundle_verifier": "matching"
+  },
+  "secrets_scan": "No literal full-length NEAR private/secret key field in tracked text files; public transaction signatures are preserved as evidence",
+  "artifacts": {
+    "evidence/latest-snapshot.json": "44b98fe283ec11d52474de804b58b75ec3e85c69792eee259ee5c510bae44c1a",
+    "evidence/report.json": "fe2a44adc9de75d9c020ae3e55e20b001b26e57babadab25b17ebec6a0bb0309",
+    "evidence/report-v2.json": "4e08e3f2b41424a26dced62c80443278cf1be2ce8a7c0653c282785114f40924",
+    "evidence/deployment.json": "a1f38aecc01d240c3e1d82c5c5d0c31cf312cdb502277d10890b0ff29cb81889",
+    "evidence/demo/research-workflow.webm": "dbadb8e1a8c4d7cdb6956f345c7f1e5880890ce53e5d0cb1a4e6c662c48163b9"
+  },
+  "hosted_web_url": null,
+  "hosted_api_url": null,
+  "hosting_input_required": "Owner-controlled free hosting account; render.yaml and Docker Compose provided."
+}
