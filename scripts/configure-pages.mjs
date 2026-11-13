@@ -3,7 +3,7 @@ const text = execFileSync("git", ["credential", "fill"], { input: "protocol=http
 const fields = Object.fromEntries(text.trim().split(/\r?\n/).map(line => { const index = line.indexOf("="); return [line.slice(0, index), line.slice(index + 1)]; }));
 if (!fields.password) throw new Error("Existing GitHub authorization is unavailable");
 const headers = { authorization: "Bearer " + fields.password, accept: "application/vnd.github+json", "content-type": "application/json", "x-github-api-version": "2022-11-28" };
-const base = "https://api.github.com/repos/eshaanvgupta/near-underwrite";
+const base = "https://api.github.com/repos/iamfrankyyy/near-underwrite";
 const existing = await fetch(base + "/pages", { headers });
 if (existing.status === 404) {
   const created = await fetch(base + "/pages", { method: "POST", headers, body: JSON.stringify({ build_type: "workflow" }) });

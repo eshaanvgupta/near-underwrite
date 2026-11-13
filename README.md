@@ -6,7 +6,7 @@ NEAR UNDERWRITE is a research application with a React interface, Node API, Post
 
 Open a claim, inspect its evidence and counterargument, change its assumptions, export the report, and verify its content against an on-chain commitment.
 
-**Public research preview:** https://eshaanvgupta.github.io/near-underwrite/
+**Public research preview:** https://iamfrankyyy.github.io/near-underwrite/
 
 GitHub Pages serves the React application, saved real mainnet evidence, scenario tools, exports, and live testnet wallet/verification features. Shared PostgreSQL workspaces and proxied AI requests require the separate API. The page labels this mode explicitly. Each deployment attempts a bounded public-source refresh and retains the saved snapshot with its original timestamps if sources are unavailable.
 
@@ -22,7 +22,7 @@ docker compose up -d --build
 
 Open **http://localhost:4173**. The web server proxies the real API under `/api`; the shared collector fetches public mainnet data on a bounded one-minute schedule. PostgreSQL owns snapshots, workspaces, publication metadata, and request reservations.
 
-For a free hosted preview, use the repository's [Render Blueprint](https://dashboard.render.com/blueprint/new?repo=https://github.com/eshaanvgupta/near-underwrite). Both configured plans are `free`. Review the plan screen before creating resources. No hosted URL is claimed until the deployment succeeds. Free hosting has sleep, storage, and expiry limits; [DEPLOYMENT.md](DEPLOYMENT.md) explains these and the commercial deployment path.
+For a free hosted preview, use the repository's [Render Blueprint](https://dashboard.render.com/blueprint/new?repo=https://github.com/iamfrankyyy/near-underwrite). Both configured plans are `free`. Review the plan screen before creating resources. No hosted API URL is claimed until the deployment succeeds. Free hosting has sleep, storage, and expiry limits; [DEPLOYMENT.md](DEPLOYMENT.md) explains these and the commercial deployment path.
 
 ## Do X, see Y
 

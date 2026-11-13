@@ -10,9 +10,11 @@ The guide limits one person to two independent projects. The author's existing e
 
 NEAR UNDERWRITE asks what observable conditions would strengthen or invalidate NEAR's long-term token-demand thesis. Researchers inspect finalized mainnet evidence, daily supply/activity history, and source quality; change explicit issuance, burn, capture, and inventory assumptions; save and compare workspaces; and export reproducible reports. Optional Bull, Bear, and Synthesis requests use each user's own provider credentials and the same frozen evidence. An append-only NEAR testnet registry binds author, report/evidence/model hashes, timestamps, and parent-linked revisions. The recorded base report is neutral and includes counterarguments and falsification conditions. Two real testnet publications and a read-only hash/code verifier demonstrate publication integrity.
 
-Repository: https://github.com/eshaanvgupta/near-underwrite
+Repository: https://github.com/iamfrankyyy/near-underwrite
 
-Hosted web/API URL: not recorded; requires an owner-authorized free hosting account. Docker deployment and a free Render Blueprint are provided.
+Hosted web preview: https://iamfrankyyy.github.io/near-underwrite/
+
+Hosted API URL: not recorded; requires an owner-authorized hosting account. Docker deployment and a free Render Blueprint are provided.
 
 ## Human-confirmed fields
 

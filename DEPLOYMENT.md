@@ -2,11 +2,11 @@
 
 ## GitHub Pages research preview
 
-URL: https://eshaanvgupta.github.io/near-underwrite/
+URL: https://iamfrankyyy.github.io/near-underwrite/
 
 The Pages workflow builds with the /near-underwrite/ asset base and an empty API URL by default. It attempts a bounded mainnet refresh at deployment time, then uploads the frontend and public evidence. Source times remain visible if that refresh fails.
 
-Pages supports evidence inspection, scenario changes, local comparisons, report exports, wallet-signed testnet publication, and read-only registry verification. It does not run Node or PostgreSQL. Shared saves and AI requests are disabled until a backend is supplied. To connect one later, set the public GitHub repository variable UNDERWRITE_API_URL to its HTTPS API base, configure that API's WEB_ORIGIN as https://eshaanvgupta.github.io, and rerun the Pages workflow. The API URL is public configuration; provider keys are never GitHub variables or build inputs.
+Pages supports evidence inspection, scenario changes, local comparisons, report exports, wallet-signed testnet publication, and read-only registry verification. It does not run Node or PostgreSQL. Shared saves and AI requests are disabled until a backend is supplied. To connect one later, set the public GitHub repository variable UNDERWRITE_API_URL to its HTTPS API base, configure that API's WEB_ORIGIN as https://iamfrankyyy.github.io, and rerun the Pages workflow. The API URL is public configuration; provider keys are never GitHub variables or build inputs.
 
 ## Local launch with no paid account
 
@@ -25,7 +25,7 @@ On Windows, Docker in Ubuntu WSL is supported; run the compose commands inside t
 
 ## Free hosted preview
 
-The [Render Blueprint](https://dashboard.render.com/blueprint/new?repo=https://github.com/eshaanvgupta/near-underwrite) configures one **free** Docker web service and one **free** PostgreSQL database. The operator must sign into their own Render account and approve creation. No account or deployment URL is fabricated.
+The [Render Blueprint](https://dashboard.render.com/blueprint/new?repo=https://github.com/iamfrankyyy/near-underwrite) configures one **free** Docker web service and one **free** PostgreSQL database. The operator must sign into their own Render account and approve creation. No account or deployment URL is fabricated.
 
 The combined host launcher binds Render's PORT for web, proxies API requests internally, derives the allowed web origin from RENDER_EXTERNAL_URL, and runs the shared collector while the service is active. The Docker image builds the web application with /api as its API path.
 
